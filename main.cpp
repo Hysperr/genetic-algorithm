@@ -1,3 +1,19 @@
+/**
+ * This program demonstrates the genetic algorithm to maximize our function f(x)= x^2.
+ * We do this in a series of 5 steps:
+ *
+ * (1) Randomly generate candidates
+ * (2) Apply fitness function/evaluate & sort
+ * (3) Crossover
+ * (4) Mutate
+ * (5) Repeat
+ *
+ * These steps give us the ability to find optimized solutions to difficult problems when we don’t know the exact answer.
+ * This program uses bitstrings as candidates. Of course we can know by looking that a candidate bitstring of 11111
+ * (given a max bitstring length of 5) would maximize our fitness function f(x) = x^2, because 11111 (31 in decimal) is f(31) = 961.
+ * However this program is meant to show the procedure of the GA and provide any reference necessary.
+ */
+
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -25,7 +41,7 @@ int bitStr_toInt(std::string bitstr) {
     int value = 0;
     int power = 0;
     for (int i = (int) (bitstr.size() - 1); i >= 0; i--)
-        value += (pow(2, power++) * (bitstr[i] - '0'));
+        value += (pow(2, power++) * (bitstr[i] - '0'));  // char # - '0' gives its integer representation. See ASCII table
     return value;
 }
 
@@ -54,11 +70,15 @@ void selection_sort(std::vector<sample> &vec) {
     }
 }
 
-
+/**
+ * Take best candidates and cross corresponding values at
+ * each end of the bitstring to simulate genetic offspring.
+ * @param vec
+ */
 void crossover(std::vector<sample> &vec) {
     std::vector<sample> results;
 
-    // 6 candidates total. we work on half since we modify two at a time.
+    // 6 candidates total. we loop on half since we modify two at a time.
     for (int i = 0; i < (candidates * keep); i++) {
 
         // only choose samples from the top 'keep' candidates.
@@ -93,6 +113,14 @@ void crossover(std::vector<sample> &vec) {
             }
         }
 
+        // convert values to integers and evaluate to finish up the new results
+        r1.value = bitStr_toInt(r1.code);
+        r2.value = bitStr_toInt(r1.code);
+
+        r1.eval = evaluate(r1.value);
+        r2.eval = evaluate(r1.value);
+
+
         results.push_back(r1);
         results.push_back(r2);
     }
@@ -102,24 +130,19 @@ void crossover(std::vector<sample> &vec) {
         vec[i] = results[i];
 }
 
-
-void mutate(std::vector<sample> &sample_vector) {
-    for (int i = 0; i < sample_vector.size(); i++) {
+/**
+ * Perform mutation by flipping a random bit while making sure it conforms
+ * to the mutation rate (x < mutationRate)
+ * @param vec
+ */
+void mutate(std::vector<sample> &vec) {
+    for (int i = 0; i < vec.size(); i++) {
         // should we mutate?
         if ( ((rand() % 10) / (float) 10 ) < mutateRate) {
             // which element to mutate
             int mutateIndex = rand() % candidateSize;
-
-            sample_vector[i].code[mutateIndex] = (sample_vector[i].code[mutateIndex] == '0') ? '1' : '0';
-
-            /* The conditional line above means the exact same thing
-             * as the wordy conditional below.
-             *
-            if (sample_vector[i].code[mutateIndex] == '0')
-                sample_vector[i].code[mutateIndex] = '1';
-            else
-                sample_vector[i].code[mutateIndex] = '0';
-            */
+            // mutate
+            vec[i].code[mutateIndex] = (vec[i].code[mutateIndex] == '0') ? '1' : '0';
         }
     }
 }
@@ -131,8 +154,8 @@ void mutate(std::vector<sample> &sample_vector) {
 void showSamples(std::vector<sample> &vec) {
     for(unsigned int i = 0; i < vec.size(); i++){
         std::cout << "Sample-" << i << " : "<< vec[i].code <<" \t|\t";
-        std::cout << "value-" << i << " : "<< vec[i].value << " \t|\t";
-        std::cout << "eval-" << i << " : "<< vec[i].eval << std::endl;
+        std::cout << "Value-" << i << " : "<< vec[i].value << " \t|\t";
+        std::cout << "Eval-" << i << " : "<< vec[i].eval << std::endl;
     }
     std::cout << '\n';
 }
@@ -169,46 +192,29 @@ int main() {
     for (unsigned int i = 0; i < sample_vector.size(); i++)
         sample_vector[i].value = bitStr_toInt(sample_vector[i].code);
 
-    //evaluate samples using fitness function.
+    // evaluate samples using fitness function.
     for (unsigned int i = 0; i < sample_vector.size(); i++)
         sample_vector[i].eval = evaluate(sample_vector[i].value);
 
-
-    //output the samples
-    std::cout << "\nSamples GENERATED..." << std::endl;
+    // output the samples
+    std::cout << "\nSamples GENERATED..." << '\n';
     showSamples(sample_vector);
 
     // sort
     selection_sort(sample_vector);
-    std::cout << "After samples are SORTED..." << std::endl;
+    std::cout << "After samples are SORTED..." << '\n';
     showSamples(sample_vector);
 
     // crossover
     crossover(sample_vector);
 
-    // convert to decimal again
-    for(unsigned int i = 0; i < sample_vector.size(); i++)
-        sample_vector[i].value = bitStr_toInt(sample_vector[i].code);
-
-    //evaluate again
-    for(unsigned int i = 0; i < sample_vector.size(); i++)
-        sample_vector[i].eval = evaluate(sample_vector[i].value);
-
-    std::cout << "After CROSSOVER..." << std::endl;
+    std::cout << "After CROSSOVER..." << '\n';
     showSamples(sample_vector);
 
     // mutate
     mutate(sample_vector);
 
-    //convert to decimal again
-    for(unsigned int i = 0; i < sample_vector.size(); i++)
-        sample_vector[i].value = bitStr_toInt(sample_vector[i].code);
-
-    //evaluate again
-    for(unsigned int i = 0; i < sample_vector.size(); i++)
-        sample_vector[i].eval = evaluate(sample_vector[i].value);
-
-    std::cout << "After MUTATION..." << std::endl;
+    std::cout << "After MUTATION..." << '\n';
     showSamples(sample_vector);
 
 
