@@ -115,10 +115,10 @@ void crossover(std::vector<sample> &vec) {
 
         // convert the new bitstrings to integers and evaluate to finish up the new results
         r1.value = bitStr_toInt(r1.code);
-        r2.value = bitStr_toInt(r1.code);
+        r2.value = bitStr_toInt(r2.code);
 
         r1.eval = evaluate(r1.value);
-        r2.eval = evaluate(r1.value);
+        r2.eval = evaluate(r2.value);
 
 
         results.push_back(r1);
