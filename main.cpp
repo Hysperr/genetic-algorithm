@@ -171,9 +171,7 @@ int main() {
     for (int i = 0; i < candidates; i++) {
 
         sample tempSample;
-        tempSample.code = "";
-        tempSample.value = 0;
-        tempSample.eval = -1;
+        tempSample.code = ""; tempSample.value = 0; tempSample.eval = -1;
 
         for (int j = 0; j < candidateSize; j++) {
             int chance = rand() % 100;
@@ -181,11 +179,8 @@ int main() {
                 tempSample.code += "1";
             else
                 tempSample.code += "0";
-
         }
-
         sample_vector.push_back(tempSample);
-
     }
 
     // convert to decimal
